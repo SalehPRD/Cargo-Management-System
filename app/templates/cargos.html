@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بارها - سامانه اعلام بار</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Tahoma, sans-serif; background: #0D1117; color: #E6EDF3; display: flex; min-height: 100vh; }
+        .sidebar { width: 220px; background: #161B22; border-left: 1px solid #2A3441; display: flex; flex-direction: column; flex-shrink: 0; }
+        .logo { padding: 20px 16px; border-bottom: 1px solid #2A3441; }
+        .logo-icon { font-size: 28px; margin-bottom: 8px; }
+        .logo h2 { font-size: 13px; font-weight: 700; }
+        .logo p { font-size: 11px; color: #8B98A8; }
+        nav { padding: 14px 10px; flex: 1; }
+        .nav-label { font-size: 10px; font-weight: 600; color: #4A5568; padding: 0 8px; margin-bottom: 6px; margin-top: 14px; text-transform: uppercase; letter-spacing: 0.08em; }
+        .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 12px; color: #8B98A8; cursor: pointer; margin-bottom: 2px; text-decoration: none; }
+        .nav-item:hover { background: #1C2333; color: #E6EDF3; }
+        .nav-item.active { background: rgba(245,166,35,0.1); color: #F5A623; font-weight: 600; }
+        .user-box { padding: 14px 16px; border-top: 1px solid #2A3441; display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #4A9EFF, #7B61FF); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+        .user-name { font-size: 12px; font-weight: 600; }
+        .user-role { font-size: 10px; background: rgba(74,158,255,0.15); color: #4A9EFF; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
+        .main { flex: 1; display: flex; flex-direction: column; }
+        .topbar { padding: 14px 24px; border-bottom: 1px solid #2A3441; background: #161B22; display: flex; align-items: center; justify-content: space-between; }
+        .topbar h1 { font-size: 15px; font-weight: 700; }
+        .topbar p { font-size: 11px; color: #8B98A8; margin-top: 2px; }
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; font-family: Tahoma, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: linear-gradient(135deg, #F5A623, #E8833A); color: #000; }
+        .btn-ghost { background: #1C2333; color: #8B98A8; border: 1px solid #2A3441; }
+        .btn-danger { background: rgba(255,107,107,0.1); color: #FF6B6B; border: 1px solid rgba(255,107,107,0.2); }
+        .content { padding: 24px; }
+        .table-box { background: #161B22; border: 1px solid #2A3441; border-radius: 12px; }
+        .table-head { padding: 14px 20px; border-bottom: 1px solid #2A3441; display: flex; align-items: center; justify-content: space-between; }
+        .table-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: #F5A623; box-shadow: 0 0 5px #F5A623; display: inline-block; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 10px 20px; text-align: right; font-size: 11px; font-weight: 600; color: #4A5568; border-bottom: 1px solid #2A3441; }
+        td { padding: 12px 20px; font-size: 13px; border-bottom: 1px solid rgba(42,52,65,0.5); }
+        tr:last-child td { border-bottom: none; }
+        .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .chip::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+        .chip-waiting { background: rgba(255,209,102,0.12); color: #FFD166; }
+        .chip-selected { background: rgba(74,158,255,0.12); color: #4A9EFF; }
+        .chip-loaded { background: rgba(61,214,140,0.12); color: #3DD68C; }
+        .action-btns { display: flex; gap: 6px; }
+        .icon-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid #2A3441; background: #1C2333; color: #8B98A8; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; text-decoration: none; }
+        .empty { text-align: center; padding: 40px; color: #8B98A8; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🚛</div>
+            <h2>سامانه اعلام بار</h2>
+            <p>کارخانه‌جات</p>
+        </div>
+        <nav>
+            <div class="nav-label">منو اصلی</div>
+            <a href="/dashboard" class="nav-item">📊 داشبورد</a>
+            <a href="/cargos" class="nav-item active">📦 بارها</a>
+            <a href="/vehicles" class="nav-item">🚛 ناوگان</a>
+            <a href="/users" class="nav-item">👥 کاربران</a>
+            <div class="nav-label">مدیریت</div>
+            <a href="/queue" class="nav-item">⏳ صف نوبت</a>
+            <a href="/pending" class="nav-item">✅ در انتظار بارگیری</a>
+            <a href="/approve-drivers" class="nav-item">🔔 تایید رانندگان</a>
+            <div class="nav-label">تنظیمات</div>
+            <a href="/change-admin" class="nav-item">⚙️ تغییر ادمین</a>
+            <a href="/logout" class="nav-item">🚪 خروج</a>
+        </nav>
+        <div class="user-box">
+            <div class="avatar">م</div>
+            <div>
+                <div class="user-name">ادمین اصلی</div>
+                <div class="user-role">admin_main</div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1>مدیریت بارها</h1>
+                <p>لیست بارهای اعلام‌شده و وضعیت آن‌ها</p>
+            </div>
+            <a href="/cargos/add" class="btn btn-primary">＋ اعلام بار جدید</a>
+        </div>
+        <div class="content">
+            <div class="table-box">
+                <div class="table-head">
+                    <div class="table-title"><span class="dot"></span> بارهای فعال</div>
+                </div>
+                {% if cargos %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>شناسه</th>
+                            <th>محصول</th>
+                            <th>مبدا</th>
+                            <th>مقصد</th>
+                            <th>وزن</th>
+                            <th>نوع بارگیر</th>
+                            <th>وضعیت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cargo in cargos %}
+                        <tr>
+                            <td style="color:#8B98A8;font-size:11px;">{{ cargo.id }}</td>
+                            <td style="font-weight:600;">{{ cargo.product_name }}</td>
+                            <td style="color:#8B98A8;">{{ cargo.origin }}</td>
+                            <td style="color:#8B98A8;">{{ cargo.destination }}</td>
+                            <td>{{ cargo.weight }} تن</td>
+                            <td>{{ cargo.loader_type }}</td>
+                            <td>
+                                {% if cargo.status == "waiting" %}
+                                <span class="chip chip-waiting">در انتظار انتخاب</span>
+                                {% elif cargo.status == "selected" %}
+                                <span class="chip chip-selected">انتخاب شده</span>
+                                {% elif cargo.status == "loaded" %}
+                                <span class="chip chip-loaded">بارگیری شده</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <a href="/cargos/edit/{{ cargo.id }}" class="icon-btn">✏️</a>
+                                    <a href="/cargos/delete/{{ cargo.id }}" class="icon-btn" onclick="return confirm('آیا مطمئن هستید؟')">🗑</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty">هنوز باری اعلام نشده است</div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</body>
+</html>
