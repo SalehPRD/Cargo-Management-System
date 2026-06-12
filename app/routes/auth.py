@@ -56,3 +56,11 @@ async def setup_submit(request: Request, username: str = Form(...), password: st
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse(request, "login.html")
+
+@router.post("/login", response_class=HTMLResponse)
+async def login_submit(request: Request, username: str = Form(...), password: str = Form(...)):
+    users = load_users()
+    user = next((u for u in users if u["username"] == username and u["password"] == password), None)
+    if not user:
+        return templates.TemplateResponse(request, "login.html", {"error": "نام کاربری یا رمز عبور اشتباه است"})
+    return RedirectResponse(url="/dashboard", status_code=302)
