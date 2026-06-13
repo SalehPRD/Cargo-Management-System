@@ -7,9 +7,11 @@ app = FastAPI(title="سامانه اعلام بار")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
-from app.routes import auth, dashboard, cargo, users, vehicles
+from app.routes import auth, dashboard, cargo, users, vehicles, queue, admin
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(cargo.router)
 app.include_router(users.router)
 app.include_router(vehicles.router)
+app.include_router(queue.router)
+app.include_router(admin.router)

@@ -1,13 +1,5 @@
 [
   {
-    "id": "A1",
-    "username": "Saleh",
-    "password": "Pordel3115",
-    "full_name": "صالح پردل",
-    "phone": "۰۹۳۵۲۳۴۳۱۱۵",
-    "role": "admin_main"
-  },
-  {
     "id": "A2",
     "full_name": "ساجد پردل",
     "national_id": "12121212",
@@ -16,5 +8,13 @@
     "password": "pordel2100",
     "role": "admin_sub",
     "status": "approved"
+  },
+  {
+    "id": "A1",
+    "full_name": "صالح پردل",
+    "phone": "۰۹۳۵۲۳۴۳۱۱۵",
+    "username": "Saleh",
+    "password": "pordel31155",
+    "role": "admin_main"
   }
 ]

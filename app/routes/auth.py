@@ -64,3 +64,7 @@ async def login_submit(request: Request, username: str = Form(...), password: st
     if not user:
         return templates.TemplateResponse(request, "login.html", {"error": "نام کاربری یا رمز عبور اشتباه است"})
     return RedirectResponse(url="/dashboard", status_code=302)
+
+@router.get("/logout", response_class=HTMLResponse)
+async def logout(request: Request):
+    return RedirectResponse(url="/login", status_code=302)
