@@ -63,6 +63,10 @@ async def login_submit(request: Request, username: str = Form(...), password: st
     user = next((u for u in users if u["username"] == username and u["password"] == password), None)
     if not user:
         return templates.TemplateResponse(request, "login.html", {"error": "نام کاربری یا رمز عبور اشتباه است"})
+    if user["role"] == "driver":
+        if user.get("status") != "approved":
+            return templates.TemplateResponse(request, "login.html", {"error": "حساب شما هنوز تایید نشده است"})
+        return RedirectResponse(url=f"/driver/{user['id']}", status_code=302)
     return RedirectResponse(url="/dashboard", status_code=302)
 
 @router.get("/logout", response_class=HTMLResponse)

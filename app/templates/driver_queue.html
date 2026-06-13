@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نوبت‌گیری - سامانه اعلام بار</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Tahoma, sans-serif; background: #0D1117; color: #E6EDF3; display: flex; min-height: 100vh; }
+        .sidebar { width: 220px; background: #161B22; border-left: 1px solid #2A3441; display: flex; flex-direction: column; flex-shrink: 0; }
+        .logo { padding: 20px 16px; border-bottom: 1px solid #2A3441; }
+        .logo-icon { font-size: 28px; margin-bottom: 8px; }
+        .logo h2 { font-size: 13px; font-weight: 700; }
+        .logo p { font-size: 11px; color: #8B98A8; }
+        nav { padding: 14px 10px; flex: 1; }
+        .nav-label { font-size: 10px; font-weight: 600; color: #4A5568; padding: 0 8px; margin-bottom: 6px; margin-top: 14px; text-transform: uppercase; letter-spacing: 0.08em; }
+        .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 12px; color: #8B98A8; cursor: pointer; margin-bottom: 2px; text-decoration: none; }
+        .nav-item:hover { background: #1C2333; color: #E6EDF3; }
+        .nav-item.active { background: rgba(245,166,35,0.1); color: #F5A623; font-weight: 600; }
+        .user-box { padding: 14px 16px; border-top: 1px solid #2A3441; display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #F5A623, #E8833A); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #000; }
+        .user-name { font-size: 12px; font-weight: 600; }
+        .user-role { font-size: 10px; background: rgba(245,166,35,0.15); color: #F5A623; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
+        .main { flex: 1; display: flex; flex-direction: column; }
+        .topbar { padding: 14px 24px; border-bottom: 1px solid #2A3441; background: #161B22; }
+        .topbar h1 { font-size: 15px; font-weight: 700; }
+        .topbar p { font-size: 11px; color: #8B98A8; margin-top: 2px; }
+        .content { padding: 24px; }
+        .vehicle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .vehicle-card { background: #161B22; border: 1px solid #2A3441; border-radius: 12px; padding: 18px; }
+        .vehicle-plate { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+        .vehicle-info { font-size: 12px; color: #8B98A8; margin-bottom: 14px; }
+        .vehicle-info span { margin-left: 10px; }
+        .queue-status { padding: 10px; background: #1C2333; border-radius: 8px; margin-bottom: 12px; }
+        .queue-pos { font-size: 22px; font-weight: 800; color: #F5A623; }
+        .queue-label { font-size: 11px; color: #8B98A8; }
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; font-family: Tahoma, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; width: 100%; justify-content: center; }
+        .btn-primary { background: linear-gradient(135deg, #F5A623, #E8833A); color: #000; }
+        .btn-disabled { background: #1C2333; color: #4A5568; border: 1px solid #2A3441; cursor: not-allowed; }
+        .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .chip-loading { background: rgba(74,158,255,0.12); color: #4A9EFF; }
+        .empty { text-align: center; padding: 40px; color: #8B98A8; font-size: 13px; background: #161B22; border: 1px solid #2A3441; border-radius: 12px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🚛</div>
+            <h2>سامانه اعلام بار</h2>
+            <p>پنل راننده</p>
+        </div>
+        <nav>
+            <div class="nav-label">منو</div>
+            <a href="/driver/{{ driver.id }}" class="nav-item">📊 داشبورد</a>
+            <a href="/driver/{{ driver.id }}/queue" class="nav-item active">⏳ نوبت‌گیری</a>
+            <a href="/driver/{{ driver.id }}/cargo" class="nav-item">📦 انتخاب بار</a>
+            <a href="/driver/{{ driver.id }}/vehicles" class="nav-item">🚛 ماشین‌هایم</a>
+            <a href="/driver/{{ driver.id }}/profile" class="nav-item">👤 پروفایل</a>
+            <a href="/logout" class="nav-item">🚪 خروج</a>
+        </nav>
+        <div class="user-box">
+            <div class="avatar">ر</div>
+            <div>
+                <div class="user-name">{{ driver.full_name }}</div>
+                <div class="user-role">راننده | {{ driver.id }}</div>
+            </div>
+        </div>
+    </aside>
+    <main class="main">
+        <div class="topbar">
+            <h1>نوبت‌گیری</h1>
+            <p>ثبت نوبت برای هر ماشین</p>
+        </div>
+        <div class="content">
+            {% if vehicles %}
+            <div class="vehicle-grid">
+                {% for vehicle in vehicles %}
+                <div class="vehicle-card">
+                    <div class="vehicle-plate">{{ vehicle.plate }}</div>
+                    <div class="vehicle-info">
+                        <span>{{ vehicle.model }}</span>
+                        <span>{{ vehicle.loader_type }}</span>
+                    </div>
+                    {% if vehicle.id in my_queues %}
+                        {% set q = my_queues[vehicle.id] %}
+                        <div class="queue-status">
+                            <div class="queue-pos">{{ q.position }}</div>
+                            <div class="queue-label">نوبت شما در صف {{ q.loader_type }}</div>
+                            <div style="margin-top:6px;">
+                                <span class="chip chip-loading">{% if q.stage == 'selection' %}انتظار انتخاب بار{% else %}انتظار بارگیری{% endif %}</span>
+                            </div>
+                        </div>
+                        <div class="btn btn-disabled">قبلاً نوبت گرفته شده</div>
+                    {% elif vehicle.status == 'busy' %}
+                        <div class="btn btn-disabled">ماشین مشغول است</div>
+                    {% else %}
+                        <a href="/driver/{{ driver.id }}/queue/register/{{ vehicle.id }}" class="btn btn-primary" onclick="return confirm('نوبت برای این ماشین ثبت شود؟')">ثبت نوبت</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty">هنوز ماشینی ثبت نکرده‌اید</div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

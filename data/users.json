@@ -16,5 +16,15 @@
     "username": "Saleh",
     "password": "pordel31155",
     "role": "admin_main"
+  },
+  {
+    "id": "D1",
+    "full_name": "ساجد پردل",
+    "national_id": "12121212",
+    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
+    "username": "sajed",
+    "password": "11111111",
+    "role": "driver",
+    "status": "approved"
   }
 ]
