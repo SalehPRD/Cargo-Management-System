@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرم کاربر - سامانه اعلام بار</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Tahoma, sans-serif; background: #0D1117; color: #E6EDF3; display: flex; min-height: 100vh; }
+        .sidebar { width: 220px; background: #161B22; border-left: 1px solid #2A3441; display: flex; flex-direction: column; flex-shrink: 0; }
+        .logo { padding: 20px 16px; border-bottom: 1px solid #2A3441; }
+        .logo-icon { font-size: 28px; margin-bottom: 8px; }
+        .logo h2 { font-size: 13px; font-weight: 700; }
+        .logo p { font-size: 11px; color: #8B98A8; }
+        nav { padding: 14px 10px; flex: 1; }
+        .nav-label { font-size: 10px; font-weight: 600; color: #4A5568; padding: 0 8px; margin-bottom: 6px; margin-top: 14px; text-transform: uppercase; letter-spacing: 0.08em; }
+        .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 12px; color: #8B98A8; cursor: pointer; margin-bottom: 2px; text-decoration: none; }
+        .nav-item:hover { background: #1C2333; color: #E6EDF3; }
+        .nav-item.active { background: rgba(245,166,35,0.1); color: #F5A623; font-weight: 600; }
+        .user-box { padding: 14px 16px; border-top: 1px solid #2A3441; display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #4A9EFF, #7B61FF); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+        .user-name { font-size: 12px; font-weight: 600; }
+        .user-role { font-size: 10px; background: rgba(74,158,255,0.15); color: #4A9EFF; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
+        .main { flex: 1; display: flex; flex-direction: column; }
+        .topbar { padding: 14px 24px; border-bottom: 1px solid #2A3441; background: #161B22; display: flex; align-items: center; justify-content: space-between; }
+        .topbar h1 { font-size: 15px; font-weight: 700; }
+        .topbar p { font-size: 11px; color: #8B98A8; margin-top: 2px; }
+        .content { padding: 24px; }
+        .form-card { background: #161B22; border: 1px solid #2A3441; border-radius: 12px; padding: 24px; max-width: 500px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 12px; font-weight: 600; color: #8B98A8; margin-bottom: 6px; }
+        input { width: 100%; padding: 10px 14px; background: #1C2333; border: 1px solid #2A3441; border-radius: 8px; color: #E6EDF3; font-family: Tahoma, sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+        input:focus { border-color: #F5A623; }
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-family: Tahoma, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: linear-gradient(135deg, #F5A623, #E8833A); color: #000; }
+        .btn-ghost { background: #1C2333; color: #8B98A8; border: 1px solid #2A3441; }
+        .form-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .role-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; margin-bottom: 20px; }
+        .role-admin { background: rgba(245,166,35,0.1); color: #F5A623; border: 1px solid rgba(245,166,35,0.2); }
+        .role-driver { background: rgba(74,158,255,0.1); color: #4A9EFF; border: 1px solid rgba(74,158,255,0.2); }
+        .error-box { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #FF6B6B; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🚛</div>
+            <h2>سامانه اعلام بار</h2>
+            <p>کارخانه‌جات</p>
+        </div>
+        <nav>
+            <div class="nav-label">منو اصلی</div>
+            <a href="/dashboard" class="nav-item">📊 داشبورد</a>
+            <a href="/cargos" class="nav-item">📦 بارها</a>
+            <a href="/vehicles" class="nav-item">🚛 ناوگان</a>
+            <a href="/users" class="nav-item active">👥 کاربران</a>
+            <div class="nav-label">مدیریت</div>
+            <a href="/queue" class="nav-item">⏳ صف نوبت</a>
+            <a href="/pending" class="nav-item">✅ در انتظار بارگیری</a>
+            <a href="/approve-drivers" class="nav-item">🔔 تایید رانندگان</a>
+            <div class="nav-label">تنظیمات</div>
+            <a href="/change-admin" class="nav-item">⚙️ تغییر ادمین</a>
+            <a href="/logout" class="nav-item">🚪 خروج</a>
+        </nav>
+        <div class="user-box">
+            <div class="avatar">م</div>
+            <div>
+                <div class="user-name">ادمین اصلی</div>
+                <div class="user-role">admin_main</div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1>{% if user %}ویرایش کاربر{% else %}تعریف کاربر جدید{% endif %}</h1>
+                <p>{% if user %}ویرایش اطلاعات {{ user.full_name }}{% else %}افزودن کاربر به سیستم{% endif %}</p>
+            </div>
+            <a href="/users" class="btn btn-ghost">← بازگشت</a>
+        </div>
+        <div class="content">
+            <div class="form-card">
+                {% if role == "admin_sub" %}
+                <div class="role-badge role-admin">⚙️ ادمین زیرشاخه</div>
+                {% else %}
+                <div class="role-badge role-driver">🚛 راننده</div>
+                {% endif %}
+                {% if error %}
+                <div class="error-box">⚠️ {{ error }}</div>
+                {% endif %}
+                <form method="post" action="{{ action }}">
+                    <div class="form-group">
+                        <label>نام و نام خانوادگی</label>
+                        <input type="text" name="full_name" placeholder="مثلاً: علی رضایی" value="{{ user.full_name if user else '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>کد ملی</label>
+                        <input type="text" name="national_id" placeholder="مثلاً: 0123456789" value="{{ user.national_id if user else '' }}" maxlength="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>شماره تماس</label>
+                        <input type="text" name="phone" placeholder="مثلاً: 09123456789" value="{{ user.phone if user else '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نام کاربری</label>
+                        <input type="text" name="username" placeholder="نام کاربری دلخواه" value="{{ user.username if user else '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رمز عبور</label>
+                        <input type="password" name="password" placeholder="{% if user %}برای تغییر رمز وارد کنید{% else %}رمز عبور{% endif %}" {% if not user %}required{% endif %}>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">{% if user %}ذخیره تغییرات ✓{% else %}ثبت کاربر ✓{% endif %}</button>
+                        <a href="/users" class="btn btn-ghost">انصراف</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

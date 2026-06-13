@@ -6,5 +6,15 @@
     "full_name": "صالح پردل",
     "phone": "۰۹۳۵۲۳۴۳۱۱۵",
     "role": "admin_main"
+  },
+  {
+    "id": "A2",
+    "full_name": "ساجد پردل",
+    "national_id": "12121212",
+    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
+    "username": "sajed",
+    "password": "pordel2100",
+    "role": "admin_sub",
+    "status": "approved"
   }
 ]
