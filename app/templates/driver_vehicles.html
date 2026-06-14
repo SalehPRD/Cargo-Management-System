@@ -22,9 +22,11 @@
         .user-name { font-size: 12px; font-weight: 600; }
         .user-role { font-size: 10px; background: rgba(245,166,35,0.15); color: #F5A623; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
         .main { flex: 1; display: flex; flex-direction: column; }
-        .topbar { padding: 14px 24px; border-bottom: 1px solid #2A3441; background: #161B22; }
+        .topbar { padding: 14px 24px; border-bottom: 1px solid #2A3441; background: #161B22; display: flex; align-items: center; justify-content: space-between; }
         .topbar h1 { font-size: 15px; font-weight: 700; }
         .topbar p { font-size: 11px; color: #8B98A8; margin-top: 2px; }
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; font-family: Tahoma, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: linear-gradient(135deg, #F5A623, #E8833A); color: #000; }
         .content { padding: 24px; }
         .vehicle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
         .vehicle-card { background: #161B22; border: 1px solid #2A3441; border-radius: 12px; padding: 18px; }
@@ -51,6 +53,7 @@
             <a href="/driver/{{ driver.id }}/queue" class="nav-item">⏳ نوبت‌گیری</a>
             <a href="/driver/{{ driver.id }}/cargo" class="nav-item">📦 انتخاب بار</a>
             <a href="/driver/{{ driver.id }}/vehicles" class="nav-item active">🚛 ماشین‌هایم</a>
+            <a href="/driver/{{ driver.id }}/history" class="nav-item">📋 تاریخچه بارها</a>
             <a href="/driver/{{ driver.id }}/profile" class="nav-item">👤 پروفایل</a>
             <a href="/logout" class="nav-item">🚪 خروج</a>
         </nav>
@@ -64,8 +67,11 @@
     </aside>
     <main class="main">
         <div class="topbar">
-            <h1>ماشین‌هایم</h1>
-            <p>لیست ناوگان شما در سیستم</p>
+            <div>
+                <h1>ماشین‌هایم</h1>
+                <p>لیست ناوگان شما در سیستم</p>
+            </div>
+            <a href="/driver/{{ driver.id }}/vehicles/add" class="btn btn-primary">＋ ماشین جدید</a>
         </div>
         <div class="content">
             {% if vehicles %}
@@ -84,7 +90,7 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div class="empty">هنوز ماشینی برای شما ثبت نشده است</div>
+            <div class="empty">هنوز ماشینی ثبت نکرده‌اید — روی دکمه بالا کلیک کنید</div>
             {% endif %}
         </div>
     </main>

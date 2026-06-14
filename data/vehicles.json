@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "V1",
+    "smart_number": "۱۲۱۲۱۲۱۲",
+    "plate": "۱۲الف۱۲۳",
+    "loader_type": "کفی",
+    "model": "ولوو",
+    "driver_id": "D1",
+    "status": "free"
+  }
+]

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پروفایل - سامانه اعلام بار</title>
+    <title>ثبت ماشین - سامانه اعلام بار</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Tahoma, sans-serif; background: #0D1117; color: #E6EDF3; display: flex; min-height: 100vh; }
@@ -22,19 +22,20 @@
         .user-name { font-size: 12px; font-weight: 600; }
         .user-role { font-size: 10px; background: rgba(245,166,35,0.15); color: #F5A623; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
         .main { flex: 1; display: flex; flex-direction: column; }
-        .topbar { padding: 14px 24px; border-bottom: 1px solid #2A3441; background: #161B22; }
+        .topbar { padding: 14px 24px; border-bottom: 1px solid #2A3441; background: #161B22; display: flex; align-items: center; justify-content: space-between; }
         .topbar h1 { font-size: 15px; font-weight: 700; }
         .topbar p { font-size: 11px; color: #8B98A8; margin-top: 2px; }
         .content { padding: 24px; }
         .form-card { background: #161B22; border: 1px solid #2A3441; border-radius: 12px; padding: 24px; max-width: 500px; }
         .form-group { margin-bottom: 16px; }
         label { display: block; font-size: 12px; font-weight: 600; color: #8B98A8; margin-bottom: 6px; }
-        input { width: 100%; padding: 10px 14px; background: #1C2333; border: 1px solid #2A3441; border-radius: 8px; color: #E6EDF3; font-family: Tahoma, sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
-        input:focus { border-color: #F5A623; }
-        input:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-family: Tahoma, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        input, select { width: 100%; padding: 10px 14px; background: #1C2333; border: 1px solid #2A3441; border-radius: 8px; color: #E6EDF3; font-family: Tahoma, sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+        input:focus, select:focus { border-color: #F5A623; }
+        select option { background: #1C2333; }
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-family: Tahoma, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary { background: linear-gradient(135deg, #F5A623, #E8833A); color: #000; }
-        .success-box { background: rgba(61,214,140,0.1); border: 1px solid rgba(61,214,140,0.2); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #3DD68C; margin-bottom: 16px; }
+        .btn-ghost { background: #1C2333; color: #8B98A8; border: 1px solid #2A3441; }
+        .form-actions { display: flex; gap: 10px; margin-top: 8px; }
         .error-box { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #FF6B6B; margin-bottom: 16px; }
     </style>
 </head>
@@ -50,9 +51,9 @@
             <a href="/driver/{{ driver.id }}" class="nav-item">📊 داشبورد</a>
             <a href="/driver/{{ driver.id }}/queue" class="nav-item">⏳ نوبت‌گیری</a>
             <a href="/driver/{{ driver.id }}/cargo" class="nav-item">📦 انتخاب بار</a>
-            <a href="/driver/{{ driver.id }}/vehicles" class="nav-item">🚛 ماشین‌هایم</a>
+            <a href="/driver/{{ driver.id }}/vehicles" class="nav-item active">🚛 ماشین‌هایم</a>
             <a href="/driver/{{ driver.id }}/history" class="nav-item">📋 تاریخچه بارها</a>
-            <a href="/driver/{{ driver.id }}/profile" class="nav-item active">👤 پروفایل</a>
+            <a href="/driver/{{ driver.id }}/profile" class="nav-item">👤 پروفایل</a>
             <a href="/logout" class="nav-item">🚪 خروج</a>
         </nav>
         <div class="user-box">
@@ -65,39 +66,52 @@
     </aside>
     <main class="main">
         <div class="topbar">
-            <h1>پروفایل</h1>
-            <p>ویرایش اطلاعات شخصی</p>
+            <div>
+                <h1>ثبت ماشین جدید</h1>
+                <p>افزودن ماشین به ناوگان شما</p>
+            </div>
+            <a href="/driver/{{ driver.id }}/vehicles" class="btn btn-ghost">← بازگشت</a>
         </div>
         <div class="content">
             <div class="form-card">
-                {% if success %}
-                <div class="success-box">✓ {{ success }}</div>
-                {% endif %}
                 {% if error %}
                 <div class="error-box">⚠️ {{ error }}</div>
                 {% endif %}
-                <form method="post" action="/driver/{{ driver.id }}/profile">
+                <form method="post" action="/driver/{{ driver.id }}/vehicles/add">
                     <div class="form-group">
-                        <label>آیدی</label>
-                        <input type="text" value="{{ driver.id }}" disabled>
+                        <label>شماره هوشمند</label>
+                        <input type="text" name="smart_number" placeholder="شماره هوشمند ماشین" required>
                     </div>
                     <div class="form-group">
-                        <label>نام کاربری</label>
-                        <input type="text" value="{{ driver.username }}" disabled>
+                        <label>پلاک</label>
+                        <input type="text" name="plate" placeholder="مثلاً: ایران ۱۲۳ الف ۴۵" required>
                     </div>
                     <div class="form-group">
-                        <label>نام و نام خانوادگی</label>
-                        <input type="text" name="full_name" value="{{ driver.full_name }}" required>
+                        <label>مدل ماشین</label>
+                        <select name="model" required>
+                            <option value="">انتخاب کنید...</option>
+                            <option value="ولوو">ولوو</option>
+                            <option value="اسکانیا">اسکانیا</option>
+                            <option value="مرسدس بنز">مرسدس بنز</option>
+                            <option value="مان">مان</option>
+                            <option value="داف">داف</option>
+                            <option value="سایر">سایر</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label>شماره تماس</label>
-                        <input type="text" name="phone" value="{{ driver.phone }}" required>
+                        <label>نوع بارگیر</label>
+                        <select name="loader_type" required>
+                            <option value="">انتخاب کنید...</option>
+                            <option value="کفی">کفی</option>
+                            <option value="بغل‌دار">بغل‌دار</option>
+                            <option value="کمپرس">کمپرس</option>
+                            <option value="چادری">چادری</option>
+                        </select>
                     </div>
-                    <div class="form-group">
-                        <label>رمز عبور جدید (اختیاری)</label>
-                        <input type="password" name="password" placeholder="برای تغییر رمز وارد کنید">
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">ثبت ماشین ✓</button>
+                        <a href="/driver/{{ driver.id }}/vehicles" class="btn btn-ghost">انصراف</a>
                     </div>
-                    <button type="submit" class="btn btn-primary">ذخیره تغییرات ✓</button>
                 </form>
             </div>
         </div>

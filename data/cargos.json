@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "id": "C1",
+    "origin": "قاین",
+    "destination": "مشهد",
+    "weight": "۲۵",
+    "product_name": "سیمان",
+    "loader_type": "کفی",
+    "status": "loaded",
+    "driver_id": "D1",
+    "vehicle_id": "V1"
+  }
+]
