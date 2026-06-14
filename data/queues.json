@@ -1,1 +1,34 @@
-[]
+[
+  {
+    "id": "Q2",
+    "driver_id": "D3",
+    "vehicle_id": "V2",
+    "loader_type": "کفی",
+    "position": 0,
+    "stage": "selection"
+  },
+  {
+    "id": "Q3",
+    "driver_id": "D4",
+    "vehicle_id": "V3",
+    "loader_type": "کفی",
+    "position": 1,
+    "stage": "selection"
+  },
+  {
+    "id": "Q4",
+    "driver_id": "D2",
+    "vehicle_id": "V4",
+    "loader_type": "کفی",
+    "position": 2,
+    "stage": "selection"
+  },
+  {
+    "id": "Q4",
+    "driver_id": "D1",
+    "vehicle_id": "V1",
+    "loader_type": "کفی",
+    "position": 0,
+    "stage": "loading"
+  }
+]

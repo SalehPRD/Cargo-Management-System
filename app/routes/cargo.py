@@ -3,6 +3,7 @@ import os
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from app.routes.auth import require_admin
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -27,11 +28,15 @@ def generate_id(cargos):
 
 @router.get("/cargos", response_class=HTMLResponse)
 async def cargos_list(request: Request):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     cargos = load_cargos()
     return templates.TemplateResponse(request, "cargos.html", {"cargos": cargos})
 
 @router.get("/cargos/add", response_class=HTMLResponse)
 async def cargo_add_page(request: Request):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     return templates.TemplateResponse(request, "cargo_form.html", {"cargo": None, "action": "/cargos/add"})
 
 @router.post("/cargos/add", response_class=HTMLResponse)
@@ -43,6 +48,8 @@ async def cargo_add_submit(
     product_name: str = Form(...),
     loader_type: str = Form(...)
 ):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     cargos = load_cargos()
     new_cargo = {
         "id": generate_id(cargos),
@@ -59,6 +66,8 @@ async def cargo_add_submit(
 
 @router.get("/cargos/edit/{cargo_id}", response_class=HTMLResponse)
 async def cargo_edit_page(request: Request, cargo_id: str):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     cargos = load_cargos()
     cargo = next((c for c in cargos if c["id"] == cargo_id), None)
     if not cargo:
@@ -75,6 +84,8 @@ async def cargo_edit_submit(
     product_name: str = Form(...),
     loader_type: str = Form(...)
 ):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     cargos = load_cargos()
     for c in cargos:
         if c["id"] == cargo_id:
@@ -89,6 +100,8 @@ async def cargo_edit_submit(
 
 @router.get("/cargos/delete/{cargo_id}", response_class=HTMLResponse)
 async def cargo_delete(request: Request, cargo_id: str):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     cargos = load_cargos()
     cargos = [c for c in cargos if c["id"] != cargo_id]
     save_cargos(cargos)

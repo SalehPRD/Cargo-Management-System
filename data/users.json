@@ -26,5 +26,35 @@
     "username": "Saleh",
     "password": "11111111",
     "role": "admin_main"
+  },
+  {
+    "id": "D2",
+    "full_name": "ساجد پردل",
+    "national_id": "۱",
+    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
+    "username": "sajed",
+    "password": "22222222",
+    "role": "driver",
+    "status": "approved"
+  },
+  {
+    "id": "D3",
+    "full_name": "ساجد پردل",
+    "national_id": "2",
+    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
+    "username": "aref",
+    "password": "11111111",
+    "role": "driver",
+    "status": "approved"
+  },
+  {
+    "id": "D4",
+    "full_name": "ساجد پردل",
+    "national_id": "3",
+    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
+    "username": "aref",
+    "password": "22222222",
+    "role": "driver",
+    "status": "approved"
   }
 ]

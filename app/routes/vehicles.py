@@ -3,6 +3,7 @@ import os
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from app.routes.auth import require_admin
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -24,16 +25,16 @@ def validate_vehicle(vehicles, smart_number, plate, loader_type, exclude_id=None
     for v in vehicles:
         if exclude_id and v["id"] == exclude_id:
             continue
-        # شماره هوشمند با پلاک دیگه
         if v["smart_number"] == smart_number and v["plate"] != plate:
             return "این شماره هوشمند قبلاً برای پلاک دیگری ثبت شده است"
-        # همون پلاک + شماره هوشمند + همون نوع بارگیر
         if v["smart_number"] == smart_number and v["plate"] == plate and v["loader_type"] == loader_type:
             return "این ماشین با همین نوع بارگیر قبلاً ثبت شده است"
     return None
 
 @router.get("/vehicles", response_class=HTMLResponse)
 async def vehicles_list(request: Request):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     vehicles = load_json(VEHICLES_FILE)
     users = load_json(USERS_FILE)
     drivers = {u["id"]: u["full_name"] for u in users if u.get("role") == "driver"}
@@ -41,6 +42,8 @@ async def vehicles_list(request: Request):
 
 @router.get("/vehicles/add", response_class=HTMLResponse)
 async def vehicle_add_page(request: Request):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     users = load_json(USERS_FILE)
     drivers = [u for u in users if u.get("role") == "driver" and u.get("status") == "approved"]
     return templates.TemplateResponse(request, "vehicle_form.html", {"vehicle": None, "drivers": drivers, "action": "/vehicles/add", "error": None})
@@ -54,14 +57,14 @@ async def vehicle_add_submit(
     model: str = Form(...),
     driver_id: str = Form(...)
 ):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     vehicles = load_json(VEHICLES_FILE)
     users = load_json(USERS_FILE)
     drivers = [u for u in users if u.get("role") == "driver" and u.get("status") == "approved"]
-
     error = validate_vehicle(vehicles, smart_number, plate, loader_type)
     if error:
         return templates.TemplateResponse(request, "vehicle_form.html", {"vehicle": None, "drivers": drivers, "action": "/vehicles/add", "error": error})
-
     new_vehicle = {
         "id": f"V{len(vehicles) + 1}",
         "smart_number": smart_number,
@@ -77,6 +80,8 @@ async def vehicle_add_submit(
 
 @router.get("/vehicles/edit/{vehicle_id}", response_class=HTMLResponse)
 async def vehicle_edit_page(request: Request, vehicle_id: str):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     vehicles = load_json(VEHICLES_FILE)
     users = load_json(USERS_FILE)
     vehicle = next((v for v in vehicles if v["id"] == vehicle_id), None)
@@ -95,15 +100,15 @@ async def vehicle_edit_submit(
     model: str = Form(...),
     driver_id: str = Form(...)
 ):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     vehicles = load_json(VEHICLES_FILE)
     users = load_json(USERS_FILE)
     drivers = [u for u in users if u.get("role") == "driver" and u.get("status") == "approved"]
-
     error = validate_vehicle(vehicles, smart_number, plate, loader_type, exclude_id=vehicle_id)
     if error:
         vehicle = next((v for v in vehicles if v["id"] == vehicle_id), None)
         return templates.TemplateResponse(request, "vehicle_form.html", {"vehicle": vehicle, "drivers": drivers, "action": f"/vehicles/edit/{vehicle_id}", "error": error})
-
     for v in vehicles:
         if v["id"] == vehicle_id:
             v["smart_number"] = smart_number
@@ -117,6 +122,8 @@ async def vehicle_edit_submit(
 
 @router.get("/vehicles/delete/{vehicle_id}", response_class=HTMLResponse)
 async def vehicle_delete(request: Request, vehicle_id: str):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     vehicles = load_json(VEHICLES_FILE)
     vehicles = [v for v in vehicles if v["id"] != vehicle_id]
     save_vehicles(vehicles)

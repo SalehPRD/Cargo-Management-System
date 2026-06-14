@@ -6,6 +6,33 @@
     "loader_type": "کفی",
     "model": "ولوو",
     "driver_id": "D1",
+    "status": "busy"
+  },
+  {
+    "id": "V2",
+    "smart_number": "1111",
+    "plate": "11س111",
+    "loader_type": "کفی",
+    "model": "ولوو",
+    "driver_id": "D3",
+    "status": "free"
+  },
+  {
+    "id": "V3",
+    "smart_number": "2222",
+    "plate": "11س211",
+    "loader_type": "کفی",
+    "model": "ولوو",
+    "driver_id": "D4",
+    "status": "free"
+  },
+  {
+    "id": "V4",
+    "smart_number": "21",
+    "plate": "11س221",
+    "loader_type": "کفی",
+    "model": "ولوو",
+    "driver_id": "D2",
     "status": "free"
   }
 ]

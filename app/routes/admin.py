@@ -3,6 +3,7 @@ import os
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from app.routes.auth import require_admin, get_session
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -22,6 +23,9 @@ def save_json(path, data):
 
 @router.get("/change-admin", response_class=HTMLResponse)
 async def change_admin_page(request: Request):
+    session = get_session(request)
+    if not session or session["role"] != "admin_main":
+        return RedirectResponse(url="/login")
     users = load_json(USERS_FILE)
     current_admin = next((u for u in users if u.get("role") == "admin_main"), None)
     return templates.TemplateResponse(request, "change_admin.html", {"current_admin": current_admin, "error": None})
@@ -34,9 +38,11 @@ async def change_admin_submit(
     username: str = Form(...),
     password: str = Form(...)
 ):
+    session = get_session(request)
+    if not session or session["role"] != "admin_main":
+        return RedirectResponse(url="/login")
     users = load_json(USERS_FILE)
     history = load_json(ADMIN_HISTORY_FILE)
-
     current_admin = next((u for u in users if u.get("role") == "admin_main"), None)
     if current_admin:
         history.append({
@@ -46,7 +52,6 @@ async def change_admin_submit(
         })
         save_json(ADMIN_HISTORY_FILE, history)
         users = [u for u in users if u.get("role") != "admin_main"]
-
     new_admin = {
         "id": "A1",
         "full_name": full_name,
@@ -57,4 +62,6 @@ async def change_admin_submit(
     }
     users.append(new_admin)
     save_json(USERS_FILE, users)
-    return RedirectResponse(url="/dashboard", status_code=302)
+    response = RedirectResponse(url="/login", status_code=302)
+    response.delete_cookie("session")
+    return response

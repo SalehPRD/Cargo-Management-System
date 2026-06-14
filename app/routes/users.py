@@ -3,6 +3,7 @@ import os
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from app.routes.auth import require_admin
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -29,6 +30,8 @@ def generate_id(users, role):
 
 @router.get("/users", response_class=HTMLResponse)
 async def users_list(request: Request, search: str = ""):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     users = load_users()
     filtered = [u for u in users if u.get("role") != "admin_main"]
     if search:
@@ -37,6 +40,8 @@ async def users_list(request: Request, search: str = ""):
 
 @router.get("/users/add/{role}", response_class=HTMLResponse)
 async def user_add_page(request: Request, role: str):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     return templates.TemplateResponse(request, "user_form.html", {"user": None, "role": role, "action": f"/users/add/{role}", "error": None})
 
 @router.post("/users/add/{role}", response_class=HTMLResponse)
@@ -49,6 +54,8 @@ async def user_add_submit(
     username: str = Form(...),
     password: str = Form(...)
 ):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     users = load_users()
     duplicate = next((u for u in users if u.get("national_id") == national_id and u.get("role") == role), None)
     if duplicate:
@@ -71,6 +78,8 @@ async def user_add_submit(
 
 @router.get("/users/edit/{user_id}", response_class=HTMLResponse)
 async def user_edit_page(request: Request, user_id: str):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     users = load_users()
     user = next((u for u in users if u["id"] == user_id), None)
     if not user:
@@ -87,6 +96,8 @@ async def user_edit_submit(
     username: str = Form(...),
     password: str = Form(...)
 ):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     users = load_users()
     current_user = next((u for u in users if u["id"] == user_id), None)
     duplicate = next((u for u in users if u.get("national_id") == national_id and u.get("role") == current_user["role"] and u["id"] != user_id), None)
@@ -108,6 +119,8 @@ async def user_edit_submit(
 
 @router.get("/users/delete/{user_id}", response_class=HTMLResponse)
 async def user_delete(request: Request, user_id: str):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     users = load_users()
     users = [u for u in users if u["id"] != user_id]
     save_users(users)
@@ -115,12 +128,17 @@ async def user_delete(request: Request, user_id: str):
 
 @router.get("/approve-drivers", response_class=HTMLResponse)
 async def approve_drivers(request: Request):
+    session = require_admin(request)
+    if not session:
+        return RedirectResponse(url="/login")
     users = load_users()
     pending = [u for u in users if u.get("role") == "driver" and u.get("status") == "pending"]
     return templates.TemplateResponse(request, "approve_drivers.html", {"drivers": pending})
 
 @router.get("/approve-drivers/{user_id}/{action}", response_class=HTMLResponse)
 async def approve_driver_action(request: Request, user_id: str, action: str):
+    if not require_admin(request):
+        return RedirectResponse(url="/login")
     users = load_users()
     if action == "approve":
         for u in users:
@@ -131,4 +149,4 @@ async def approve_driver_action(request: Request, user_id: str, action: str):
     elif action == "reject":
         users = [u for u in users if u["id"] != user_id]
         save_users(users)
-    return RedirectResponse(url="/approve-drivers", status_code=302) 
+    return RedirectResponse(url="/approve-drivers", status_code=302)
