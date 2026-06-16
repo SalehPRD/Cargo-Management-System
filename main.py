@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from app.websocket import manager
 
 app = FastAPI(title="سامانه اعلام بار")
 
@@ -16,3 +17,12 @@ app.include_router(vehicles.router)
 app.include_router(queue.router)
 app.include_router(admin.router)
 app.include_router(driver.router)
+
+@app.websocket("/ws/{driver_id}")
+async def websocket_endpoint(websocket: WebSocket, driver_id: str):
+    await manager.connect(driver_id, websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(driver_id) 

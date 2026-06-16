@@ -43,6 +43,7 @@
         .menu-sub { font-size: 11px; color: #8B98A8; margin-top: 4px; }
     </style>
 </head>
+
 <body>
     <aside class="sidebar">
         <div class="logo">
@@ -125,5 +126,35 @@
             </div>
         </div>
     </main>
+    <script>
+    const driverId = "{{ driver.id }}";
+    const ws = new WebSocket(`ws://127.0.0.1:8001/ws/${driverId}`);
+    
+    ws.onmessage = function(event) {
+        const notifBox = document.createElement('div');
+        notifBox.style.cssText = `
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,107,107,0.95); color: white;
+            padding: 14px 24px; border-radius: 10px;
+            font-family: Tahoma, sans-serif; font-size: 13px;
+            z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s ease;
+        `;
+        notifBox.innerHTML = `🔔 ${event.data}`;
+        document.body.appendChild(notifBox);
+        setTimeout(() => notifBox.remove(), 6000);
+    };
+
+    ws.onerror = function() {
+        console.log('WebSocket connection failed');
+    };
+</script>
+<style>
+    @keyframes slideDown {
+        from { top: -20px; opacity: 0; }
+        to { top: 20px; opacity: 1; }
+    }
+</style>
+
 </body>
 </html>

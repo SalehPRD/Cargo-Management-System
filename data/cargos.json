@@ -17,9 +17,9 @@
     "weight": "۲۵",
     "product_name": "سیمان",
     "loader_type": "کفی",
-    "status": "selected",
-    "driver_id": "D1",
-    "vehicle_id": "V1"
+    "status": "waiting",
+    "driver_id": null,
+    "vehicle_id": null
   },
   {
     "id": "C3",

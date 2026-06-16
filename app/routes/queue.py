@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from app.routes.auth import require_admin
+from app.websocket import manager
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -97,6 +98,11 @@ async def pending_approve(request: Request, cargo_id: str):
         for q in queues:
             if q.get("loader_type") == cargo.get("loader_type") and q["stage"] == "loading":
                 q["position"] = max(0, q["position"] - 1)
+                if q["position"] < 2:
+                    msg = f"برای بارگیری بار {cargo.get('product_name','')} به مقصد {cargo.get('destination','')} به کارخانه مراجعه کنید. توجه: در صورت عدم مراجعه در ۳۰ دقیقه آینده، نوبت شما حذف خواهد شد"
+                    sent = await manager.send_notification(q["driver_id"], msg)
+                    if not sent:
+                        add_notification(q["driver_id"], msg)
         save_json(CARGOS_FILE, cargos)
         save_json(VEHICLES_FILE, vehicles)
         save_json(QUEUE_FILE, queues)
@@ -115,6 +121,9 @@ async def pending_cancel(request: Request, cargo_id: str):
         vehicle_id = cargo.get("vehicle_id")
         loader_type = cargo.get("loader_type")
         cancelled_vehicle = next((v for v in vehicles if v["id"] == vehicle_id), {})
+        plate = cancelled_vehicle.get("plate", "")
+        destination = cargo.get("destination", "")
+        message = f"بار مربوط به پلاک {plate} با مقصد {destination} باطل شد"
         cargo["status"] = "waiting"
         cargo["driver_id"] = None
         cargo["vehicle_id"] = None
@@ -129,5 +138,7 @@ async def pending_cancel(request: Request, cargo_id: str):
         save_json(CARGOS_FILE, cargos)
         save_json(VEHICLES_FILE, vehicles)
         save_json(QUEUE_FILE, queues)
-        add_notification(driver_id, f"بار مربوط به پلاک {cancelled_vehicle.get('plate', '')} با مقصد {cargo.get('destination', '')} باطل شد")
+        sent = await manager.send_notification(driver_id, message)
+        if not sent:
+            add_notification(driver_id, message)
     return RedirectResponse(url="/pending", status_code=302)

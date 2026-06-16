@@ -22,7 +22,7 @@
         .user-name { font-size: 12px; font-weight: 600; }
         .user-role { font-size: 10px; background: rgba(74,158,255,0.15); color: #4A9EFF; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
         .main { flex: 1; display: flex; flex-direction: column; }
-        .topbar { padding: 14px 24px; border-bottom: 1px solid #2A3441; background: #161B22; display: flex; align-items: center; justify-content: space-between; }
+        .topbar { padding: 14px 24px; border-bottom: 1px solid #2A3441; background: #161B22; }
         .topbar h1 { font-size: 15px; font-weight: 700; }
         .topbar p { font-size: 11px; color: #8B98A8; margin-top: 2px; }
         .content { padding: 24px; }
@@ -59,22 +59,21 @@
             <a href="/approve-drivers" class="nav-item">🔔 تایید رانندگان</a>
             <div class="nav-label">تنظیمات</div>
             <a href="/change-admin" class="nav-item">⚙️ تغییر ادمین</a>
+            <a href="/admin-history" class="nav-item">📋 تاریخچه ادمین</a>
             <a href="/logout" class="nav-item">🚪 خروج</a>
         </nav>
         <div class="user-box">
             <div class="avatar">م</div>
             <div>
-                <div class="user-name">ادمین اصلی</div>
-                <div class="user-role">admin_main</div>
+                <div class="user-name">ادمین</div>
+                <div class="user-role">admin</div>
             </div>
         </div>
     </aside>
     <main class="main">
         <div class="topbar">
-            <div>
-                <h1>در انتظار بارگیری</h1>
-                <p>بارهایی که راننده انتخاب کرده و منتظر تایید بارگیری هستند</p>
-            </div>
+            <h1>در انتظار بارگیری</h1>
+            <p>بارهایی که راننده انتخاب کرده و منتظر تایید بارگیری هستند</p>
         </div>
         <div class="content">
             <div class="table-box">

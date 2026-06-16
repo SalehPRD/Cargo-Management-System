@@ -65,3 +65,10 @@ async def change_admin_submit(
     response = RedirectResponse(url="/login", status_code=302)
     response.delete_cookie("session")
     return response
+@router.get("/admin-history", response_class=HTMLResponse)
+async def admin_history_page(request: Request):
+    session = get_session(request)
+    if not session or session["role"] != "admin_main":
+        return RedirectResponse(url="/login")
+    history = load_json(ADMIN_HISTORY_FILE)
+    return templates.TemplateResponse(request, "admin_history.html", {"history": history})

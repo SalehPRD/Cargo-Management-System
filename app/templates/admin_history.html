@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صف نوبت - سامانه اعلام بار</title>
+    <title>تاریخچه ادمین - سامانه اعلام بار</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Tahoma, sans-serif; background: #0D1117; color: #E6EDF3; display: flex; min-height: 100vh; }
@@ -29,19 +29,11 @@
         .table-box { background: #161B22; border: 1px solid #2A3441; border-radius: 12px; }
         .table-head { padding: 14px 20px; border-bottom: 1px solid #2A3441; }
         .table-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .dot { width: 7px; height: 7px; border-radius: 50%; background: #4A9EFF; box-shadow: 0 0 5px #4A9EFF; display: inline-block; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: #F5A623; box-shadow: 0 0 5px #F5A623; display: inline-block; }
         table { width: 100%; border-collapse: collapse; }
         th { padding: 10px 20px; text-align: right; font-size: 11px; font-weight: 600; color: #4A5568; border-bottom: 1px solid #2A3441; }
         td { padding: 12px 20px; font-size: 13px; border-bottom: 1px solid rgba(42,52,65,0.5); }
         tr:last-child td { border-bottom: none; }
-        .pos { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; }
-        .pos-0 { background: rgba(61,214,140,0.2); color: #3DD68C; border: 1px solid rgba(61,214,140,0.3); }
-        .pos-1 { background: rgba(245,166,35,0.2); color: #F5A623; border: 1px solid rgba(245,166,35,0.3); }
-        .pos-2 { background: rgba(74,158,255,0.15); color: #4A9EFF; border: 1px solid rgba(74,158,255,0.25); }
-        .pos-other { background: rgba(139,152,168,0.1); color: #8B98A8; border: 1px solid #2A3441; }
-        .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 600; }
-        .chip-selection { background: rgba(245,166,35,0.12); color: #F5A623; }
-        .chip-loading { background: rgba(74,158,255,0.12); color: #4A9EFF; }
         .empty { text-align: center; padding: 40px; color: #8B98A8; font-size: 13px; }
     </style>
 </head>
@@ -59,67 +51,53 @@
             <a href="/vehicles" class="nav-item">🚛 ناوگان</a>
             <a href="/users" class="nav-item">👥 کاربران</a>
             <div class="nav-label">مدیریت</div>
-            <a href="/queue" class="nav-item active">⏳ صف نوبت</a>
+            <a href="/queue" class="nav-item">⏳ صف نوبت</a>
             <a href="/pending" class="nav-item">✅ در انتظار بارگیری</a>
             <a href="/approve-drivers" class="nav-item">🔔 تایید رانندگان</a>
             <div class="nav-label">تنظیمات</div>
             <a href="/change-admin" class="nav-item">⚙️ تغییر ادمین</a>
-            <a href="/admin-history" class="nav-item">📋 تاریخچه ادمین</a>
+            <a href="/admin-history" class="nav-item active">📋 تاریخچه ادمین</a>
             <a href="/logout" class="nav-item">🚪 خروج</a>
         </nav>
         <div class="user-box">
             <div class="avatar">م</div>
             <div>
-                <div class="user-name">ادمین</div>
-                <div class="user-role">admin</div>
+                <div class="user-name">ادمین اصلی</div>
+                <div class="user-role">admin_main</div>
             </div>
         </div>
     </aside>
     <main class="main">
         <div class="topbar">
-            <h1>صف نوبت</h1>
-            <p>وضعیت لحظه‌ای صف رانندگان</p>
+            <h1>تاریخچه ادمین اصلی</h1>
+            <p>لیست ادمین‌های اصلی قبلی سیستم</p>
         </div>
         <div class="content">
             <div class="table-box">
                 <div class="table-head">
-                    <div class="table-title"><span class="dot"></span> صف نوبت فعلی</div>
+                    <div class="table-title"><span class="dot"></span> ادمین‌های قبلی</div>
                 </div>
-                {% if queue_items %}
+                {% if history %}
                 <table>
                     <thead>
                         <tr>
-                            <th>نوبت</th>
-                            <th>راننده</th>
-                            <th>پلاک</th>
-                            <th>نوع بارگیر</th>
-                            <th>مرحله</th>
+                            <th>نام و نام خانوادگی</th>
+                            <th>نام کاربری</th>
+                            <th>شماره تماس</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in queue_items %}
+                        {% for admin in history %}
                         <tr>
-                            <td>
-                                <div class="pos {% if item.position == 0 %}pos-0{% elif item.position == 1 %}pos-1{% elif item.position == 2 %}pos-2{% else %}pos-other{% endif %}">
-                                    {{ item.position }}
-                                </div>
-                            </td>
-                            <td style="font-weight:600;">{{ item.driver_name }}</td>
-                            <td style="color:#8B98A8;">{{ item.plate }}</td>
-                            <td>{{ item.loader_type }}</td>
-                            <td>
-                                {% if item.stage == "selection" %}
-                                <span class="chip chip-selection">انتخاب بار</span>
-                                {% else %}
-                                <span class="chip chip-loading">انتظار بارگیری</span>
-                                {% endif %}
-                            </td>
+                            <td style="font-weight:600;">{{ admin.full_name }}</td>
+                            <td style="color:#8B98A8;">{{ admin.username }}</td>
+                            <td style="color:#8B98A8;">{{ admin.phone }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
-                <div class="empty">صف نوبت خالی است</div>
+                <div class="empty">هنوز تغییری در ادمین اصلی صورت نگرفته است</div>
                 {% endif %}
             </div>
         </div>

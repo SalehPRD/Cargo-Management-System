@@ -22,13 +22,5 @@
     "loader_type": "کفی",
     "position": 2,
     "stage": "selection"
-  },
-  {
-    "id": "Q4",
-    "driver_id": "D1",
-    "vehicle_id": "V1",
-    "loader_type": "کفی",
-    "position": 0,
-    "stage": "loading"
   }
 ]
