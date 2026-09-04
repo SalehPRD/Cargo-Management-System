@@ -52,12 +52,14 @@
             <a href="/driver/{{ driver.id }}/cargo" class="nav-item">📦 انتخاب بار</a>
             <a href="/driver/{{ driver.id }}/vehicles" class="nav-item">🚛 ماشین‌هایم</a>
             <a href="/driver/{{ driver.id }}/history" class="nav-item active">📋 تاریخچه بارها</a>
+            <a href="/driver/{{ driver.id }}/wallet" class="nav-item">💰 کیف پول</a>
             <a href="/driver/{{ driver.id }}/profile" class="nav-item">👤 پروفایل</a>
             <a href="/logout" class="nav-item">🚪 خروج</a>
         </nav>
         <div class="user-box">
             <div class="avatar">ر</div>
             <div>
+                <div style="font-size:10px;color:#3DD68C;margin-bottom:3px;font-weight:600;">💰 {{ "{:,}".format(driver.balance if driver.balance else 0) }} ریال</div>
                 <div class="user-name">{{ driver.full_name }}</div>
                 <div class="user-role">راننده | {{ driver.id }}</div>
             </div>

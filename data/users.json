@@ -1,25 +1,5 @@
 [
   {
-    "id": "A2",
-    "full_name": "ساجد پردل",
-    "national_id": "12121212",
-    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
-    "username": "sajed",
-    "password": "pordel2100",
-    "role": "admin_sub",
-    "status": "approved"
-  },
-  {
-    "id": "D1",
-    "full_name": "ساجد پردل",
-    "national_id": "12121212",
-    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
-    "username": "sajed",
-    "password": "11111111",
-    "role": "driver",
-    "status": "approved"
-  },
-  {
     "id": "A1",
     "full_name": "صالح پردل",
     "phone": "۰۹۳۵۲۳۴۳۱۱۵",
@@ -28,33 +8,14 @@
     "role": "admin_main"
   },
   {
-    "id": "D2",
-    "full_name": "ساجد پردل",
-    "national_id": "۱",
-    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
-    "username": "sajed",
+    "id": "D1",
+    "full_name": "صالح پردل",
+    "national_id": "۱۲۳",
+    "phone": "۱۲۳",
+    "username": "Saleh",
     "password": "22222222",
     "role": "driver",
-    "status": "approved"
-  },
-  {
-    "id": "D3",
-    "full_name": "ساجد پردل",
-    "national_id": "2",
-    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
-    "username": "aref",
-    "password": "11111111",
-    "role": "driver",
-    "status": "approved"
-  },
-  {
-    "id": "D4",
-    "full_name": "ساجد پردل",
-    "national_id": "3",
-    "phone": "۰۹۱۵۷۵۶۲۱۰۰",
-    "username": "aref",
-    "password": "22222222",
-    "role": "driver",
-    "status": "approved"
+    "status": "approved",
+    "balance": 0
   }
 ]

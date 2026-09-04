@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>درگاه پرداخت</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Tahoma, sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .gateway { background: #fff; border-radius: 16px; padding: 32px; width: 100%; max-width: 420px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+        .bank-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .bank-logo { width: 48px; height: 48px; background: linear-gradient(135deg, #004B8D, #0073CF); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .bank-name { font-size: 15px; font-weight: 700; color: #004B8D; }
+        .bank-sub { font-size: 12px; color: #888; margin-top: 2px; }
+        .amount-box { background: #f8f9fa; border-radius: 10px; padding: 16px; margin-bottom: 24px; text-align: center; }
+        .amount-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+        .amount-value { font-size: 24px; font-weight: 800; color: #004B8D; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; }
+        input { width: 100%; padding: 10px 14px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; color: #333; font-family: Tahoma, sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+        input:focus { border-color: #004B8D; background: #fff; }
+        .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-pay { width: 100%; padding: 13px; background: linear-gradient(135deg, #004B8D, #0073CF); color: #fff; border: none; border-radius: 8px; font-family: Tahoma, sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+        .secure { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; font-size: 11px; color: #888; }
+        .merchant { background: #f0f7ff; border: 1px solid #cce0ff; border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: #004B8D; }
+    </style>
+</head>
+<body>
+    <div class="gateway">
+        <div class="bank-header">
+            <div class="bank-logo">🏦</div>
+            <div>
+                <div class="bank-name">بانک ملی ایران</div>
+                <div class="bank-sub">درگاه پرداخت اینترنتی</div>
+            </div>
+        </div>
+        <div class="merchant">🏭 پذیرنده: سامانه اعلام بار کارخانه‌جات</div>
+        <div class="amount-box">
+            <div class="amount-label">مبلغ قابل پرداخت</div>
+            <div class="amount-value">{{ "{:,}".format(amount) }} ریال</div>
+        </div>
+        <form method="post" action="/driver/{{ driver_id }}/wallet/pay">
+            <input type="hidden" name="amount" value="{{ amount }}">
+            <div class="form-group">
+                <label>شماره کارت</label>
+                <input type="text" placeholder="---- ---- ---- ----" maxlength="19">
+            </div>
+            <div class="card-row">
+                <div class="form-group">
+                    <label>تاریخ انقضا</label>
+                    <input type="text" placeholder="ماه / سال">
+                </div>
+                <div class="form-group">
+                    <label>CVV2</label>
+                    <input type="password" placeholder="***">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>رمز دوم / یکبار مصرف</label>
+                <input type="password" placeholder="رمز پویا را وارد کنید">
+            </div>
+            <button type="submit" class="btn-pay">پرداخت {{ "{:,}".format(amount) }} ریال</button>
+        </form>
+        <div class="secure">🔒 این درگاه دارای نماد اعتماد الکترونیکی است</div>
+    </div>
+</body>
+</html>

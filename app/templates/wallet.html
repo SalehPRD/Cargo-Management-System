@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پروفایل - سامانه اعلام بار</title>
+    <title>کیف پول - سامانه اعلام بار</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Tahoma, sans-serif; background: #0D1117; color: #E6EDF3; display: flex; min-height: 100vh; }
@@ -26,16 +26,26 @@
         .topbar h1 { font-size: 15px; font-weight: 700; }
         .topbar p { font-size: 11px; color: #8B98A8; margin-top: 2px; }
         .content { padding: 24px; }
-        .form-card { background: #161B22; border: 1px solid #2A3441; border-radius: 12px; padding: 24px; max-width: 500px; }
+        .balance-card { background: linear-gradient(135deg, #1F497D, #2E74B5); border-radius: 16px; padding: 28px; margin-bottom: 24px; position: relative; overflow: hidden; }
+        .balance-card::before { content: '💰'; position: absolute; right: 20px; top: 20px; font-size: 48px; opacity: 0.2; }
+        .balance-label { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 10px; }
+        .balance-amount { font-size: 36px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .balance-sub { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .queue-cost { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.2); border-radius: 10px; padding: 14px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+        .queue-cost-label { font-size: 13px; color: #8B98A8; }
+        .queue-cost-amount { font-size: 15px; font-weight: 700; color: #F5A623; }
+        .charge-card { background: #161B22; border: 1px solid #2A3441; border-radius: 12px; padding: 24px; }
+        .charge-title { font-size: 14px; font-weight: 700; margin-bottom: 20px; }
+        .amounts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .amount-btn { padding: 12px; background: #1C2333; border: 1px solid #2A3441; border-radius: 8px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 600; color: #8B98A8; transition: all 0.15s; }
+        .amount-btn:hover { border-color: #F5A623; color: #F5A623; }
+        .amount-btn.selected { border-color: #F5A623; color: #F5A623; background: rgba(245,166,35,0.1); }
         .form-group { margin-bottom: 16px; }
         label { display: block; font-size: 12px; font-weight: 600; color: #8B98A8; margin-bottom: 6px; }
         input { width: 100%; padding: 10px 14px; background: #1C2333; border: 1px solid #2A3441; border-radius: 8px; color: #E6EDF3; font-family: Tahoma, sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
         input:focus { border-color: #F5A623; }
-        input:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-family: Tahoma, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .btn { padding: 12px 24px; border-radius: 8px; border: none; font-family: Tahoma, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; }
         .btn-primary { background: linear-gradient(135deg, #F5A623, #E8833A); color: #000; }
-        .success-box { background: rgba(61,214,140,0.1); border: 1px solid rgba(61,214,140,0.2); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #3DD68C; margin-bottom: 16px; }
-        .error-box { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #FF6B6B; margin-bottom: 16px; }
     </style>
 </head>
 <body>
@@ -52,8 +62,8 @@
             <a href="/driver/{{ driver.id }}/cargo" class="nav-item">📦 انتخاب بار</a>
             <a href="/driver/{{ driver.id }}/vehicles" class="nav-item">🚛 ماشین‌هایم</a>
             <a href="/driver/{{ driver.id }}/history" class="nav-item">📋 تاریخچه بارها</a>
-            <a href="/driver/{{ driver.id }}/wallet" class="nav-item">💰 کیف پول</a>
-            <a href="/driver/{{ driver.id }}/profile" class="nav-item active">👤 پروفایل</a>
+            <a href="/driver/{{ driver.id }}/wallet" class="nav-item active">💰 کیف پول</a>
+            <a href="/driver/{{ driver.id }}/profile" class="nav-item">👤 پروفایل</a>
             <a href="/logout" class="nav-item">🚪 خروج</a>
         </nav>
         <div class="user-box">
@@ -67,42 +77,45 @@
     </aside>
     <main class="main">
         <div class="topbar">
-            <h1>پروفایل</h1>
-            <p>ویرایش اطلاعات شخصی</p>
+            <h1>کیف پول</h1>
+            <p>مدیریت موجودی حساب</p>
         </div>
         <div class="content">
-            <div class="form-card">
-                {% if success %}
-                <div class="success-box">✓ {{ success }}</div>
-                {% endif %}
-                {% if error %}
-                <div class="error-box">⚠️ {{ error }}</div>
-                {% endif %}
-                <form method="post" action="/driver/{{ driver.id }}/profile">
+            <div class="balance-card">
+                <div class="balance-label">موجودی فعلی</div>
+                <div class="balance-amount">{{ "{:,}".format(balance) }} ریال</div>
+                <div class="balance-sub">کیف پول سامانه اعلام بار</div>
+            </div>
+            <div class="queue-cost">
+                <div class="queue-cost-label">هزینه ثبت نوبت</div>
+                <div class="queue-cost-amount">{{ "{:,}".format(queue_cost) }} ریال</div>
+            </div>
+            <div class="charge-card">
+                <div class="charge-title">💳 شارژ کیف پول</div>
+                <div class="amounts">
+                    <div class="amount-btn" onclick="setAmount(1000000)">۱,۰۰۰,۰۰۰</div>
+                    <div class="amount-btn" onclick="setAmount(2000000)">۲,۰۰۰,۰۰۰</div>
+                    <div class="amount-btn" onclick="setAmount(5000000)">۵,۰۰۰,۰۰۰</div>
+                    <div class="amount-btn" onclick="setAmount(10000000)">۱۰,۰۰۰,۰۰۰</div>
+                    <div class="amount-btn" onclick="setAmount(20000000)">۲۰,۰۰۰,۰۰۰</div>
+                    <div class="amount-btn" onclick="setAmount(50000000)">۵۰,۰۰۰,۰۰۰</div>
+                </div>
+                <form method="post" action="/driver/{{ driver.id }}/wallet/charge">
                     <div class="form-group">
-                        <label>آیدی</label>
-                        <input type="text" value="{{ driver.id }}" disabled>
+                        <label>مبلغ شارژ (ریال)</label>
+                        <input type="number" name="amount" id="amount" placeholder="مبلغ را وارد کنید" required>
                     </div>
-                    <div class="form-group">
-                        <label>نام کاربری</label>
-                        <input type="text" value="{{ driver.username }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>نام و نام خانوادگی</label>
-                        <input type="text" name="full_name" value="{{ driver.full_name }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label>شماره تماس</label>
-                        <input type="text" name="phone" value="{{ driver.phone }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label>رمز عبور جدید (اختیاری)</label>
-                        <input type="password" name="password" placeholder="برای تغییر رمز وارد کنید">
-                    </div>
-                    <button type="submit" class="btn btn-primary">ذخیره تغییرات ✓</button>
+                    <button type="submit" class="btn btn-primary">ادامه و پرداخت ←</button>
                 </form>
             </div>
         </div>
     </main>
+    <script>
+        function setAmount(val) {
+            document.getElementById('amount').value = val;
+            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+    </script>
 </body>
 </html>

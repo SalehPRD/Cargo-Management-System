@@ -1,24 +1,25 @@
-import json
+import json 
 import os
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from app.routes.wallet import has_enough_balance, deduct_balance, QUEUE_COST
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 USERS_FILE = "data/users.json"
 VEHICLES_FILE = "data/vehicles.json"
-CARGOS_FILE = "data/cargos.json"
+CARGOS_FILE = "data/cargos.json" 
 QUEUE_FILE = "data/queues.json"
 NOTIFICATIONS_FILE = "data/notifications.json"
 
 def load_json(path):
     if not os.path.exists(path):
-        return []
+         return [] 
     with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
+         return json.load(f)
+    
 def save_json(path, data):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -60,18 +61,18 @@ async def driver_queue(request: Request, driver_id: str):
     vehicles = load_json(VEHICLES_FILE)
     queues = load_json(QUEUE_FILE)
     my_vehicles = [v for v in vehicles if v["driver_id"] == driver_id]
-    my_queues = {q["vehicle_id"]: q for q in queues if q["driver_id"] == driver_id}
+    my_queues = {q["vehicle_id"]: q for q in queues if q["driver_id"] == driver_id} 
     return templates.TemplateResponse(request, "driver_queue.html", {
         "driver": driver,
         "vehicles": my_vehicles,
-        "my_queues": my_queues,
+        "my_queues": my_queues, 
     })
 
 @router.get("/driver/{driver_id}/queue/register/{vehicle_id}", response_class=HTMLResponse)
 async def register_queue(request: Request, driver_id: str, vehicle_id: str):
     queues = load_json(QUEUE_FILE)
     vehicles = load_json(VEHICLES_FILE)
-
+    
     vehicle = next((v for v in vehicles if v["id"] == vehicle_id), None)
     if not vehicle:
         return RedirectResponse(url=f"/driver/{driver_id}/queue")
@@ -79,6 +80,15 @@ async def register_queue(request: Request, driver_id: str, vehicle_id: str):
     existing = next((q for q in queues if q["vehicle_id"] == vehicle_id and q["driver_id"] == driver_id), None)
     if existing:
         return RedirectResponse(url=f"/driver/{driver_id}/queue")
+
+    if not has_enough_balance(driver_id):
+        driver = get_driver(driver_id)
+        return templates.TemplateResponse(request, "insufficient_balance.html", {
+            "driver": driver,
+            "queue_cost": QUEUE_COST
+        })
+
+    deduct_balance(driver_id)
 
     same_type = [q for q in queues if q.get("loader_type") == vehicle["loader_type"] and q["stage"] == "selection"]
     position = len(same_type)
@@ -120,7 +130,7 @@ async def select_cargo(request: Request, driver_id: str, cargo_id: str, vehicle_
     cargos = load_json(CARGOS_FILE)
     vehicles = load_json(VEHICLES_FILE)
     queues = load_json(QUEUE_FILE)
-
+    
     cargo = next((c for c in cargos if c["id"] == cargo_id), None)
     vehicle = next((v for v in vehicles if v["id"] == vehicle_id), None)
 
@@ -158,9 +168,9 @@ async def select_cargo(request: Request, driver_id: str, cargo_id: str, vehicle_
 async def driver_vehicles(request: Request, driver_id: str):
     driver = get_driver(driver_id)
     vehicles = [v for v in load_json(VEHICLES_FILE) if v["driver_id"] == driver_id]
-    return templates.TemplateResponse(request, "driver_vehicles.html", {
+    return templates.TemplateResponse(request, "driver_vehicles.html", {   
         "driver": driver,
-        "vehicles": vehicles,
+        "vehicles": vehicles, 
     })
 
 @router.get("/driver/{driver_id}/vehicles/add", response_class=HTMLResponse)
@@ -169,14 +179,15 @@ async def driver_add_vehicle_page(request: Request, driver_id: str):
     return templates.TemplateResponse(request, "driver_vehicle_form.html", {"driver": driver, "error": None})
 
 @router.post("/driver/{driver_id}/vehicles/add", response_class=HTMLResponse)
-async def driver_add_vehicle_submit(
+async def driver_add_vehicle_submit( 
     request: Request,
     driver_id: str,
     smart_number: str = Form(...),
     plate: str = Form(...),
     loader_type: str = Form(...),
-    model: str = Form(...)
-):
+    model: str = Form(...) 
+): 
+    
     vehicles = load_json(VEHICLES_FILE)
     driver = get_driver(driver_id)
 
@@ -205,6 +216,18 @@ async def driver_add_vehicle_submit(
     save_json(VEHICLES_FILE, vehicles)
     return RedirectResponse(url=f"/driver/{driver_id}/vehicles", status_code=302)
 
+@router.get("/driver/{driver_id}/history", response_class=HTMLResponse)
+async def driver_history(request: Request, driver_id: str):
+    driver = get_driver(driver_id)
+    cargos = load_json(CARGOS_FILE)
+    vehicles = load_json(VEHICLES_FILE)
+    vehicles_map = {v["id"]: v for v in vehicles}
+    history = [c for c in cargos if c.get("driver_id") == driver_id and c.get("status") == "loaded"]
+    for c in history:
+        vehicle = vehicles_map.get(c.get("vehicle_id"), {})
+        c["plate"] = vehicle.get("plate", "نامشخص") 
+    return templates.TemplateResponse(request, "driver_history.html", {"driver": driver, "history": history})
+
 @router.get("/driver/{driver_id}/profile", response_class=HTMLResponse)
 async def driver_profile(request: Request, driver_id: str):
     driver = get_driver(driver_id)
@@ -216,27 +239,16 @@ async def driver_profile_submit(
     driver_id: str,
     full_name: str = Form(...),
     phone: str = Form(...),
-    password: str = Form("")
-):
-    users = load_json(USERS_FILE)
+    password: str = Form("") 
+): 
+    users = load_json(USERS_FILE) 
     for u in users:
         if u["id"] == driver_id:
             u["full_name"] = full_name
             u["phone"] = phone
             if password:
                 u["password"] = password
-            break
-    save_json(USERS_FILE, users)
-    driver = get_driver(driver_id)
+            break 
+    save_json(USERS_FILE, users) 
+    driver = get_driver(driver_id) 
     return templates.TemplateResponse(request, "driver_profile.html", {"driver": driver, "error": None, "success": "اطلاعات با موفقیت ذخیره شد"})
-@router.get("/driver/{driver_id}/history", response_class=HTMLResponse)
-async def driver_history(request: Request, driver_id: str):
-    driver = get_driver(driver_id)
-    cargos = load_json(CARGOS_FILE)
-    vehicles = load_json(VEHICLES_FILE)
-    vehicles_map = {v["id"]: v for v in vehicles}
-    history = [c for c in cargos if c.get("driver_id") == driver_id and c.get("status") == "loaded"]
-    for c in history:
-        vehicle = vehicles_map.get(c.get("vehicle_id"), {})
-        c["plate"] = vehicle.get("plate", "نامشخص")
-    return templates.TemplateResponse(request, "driver_history.html", {"driver": driver, "history": history})

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موجودی ناکافی</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Tahoma, sans-serif; background: #0D1117; color: #E6EDF3; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card { background: #161B22; border: 1px solid #2A3441; border-radius: 16px; padding: 40px; width: 100%; max-width: 420px; text-align: center; }
+        .icon { font-size: 64px; margin-bottom: 20px; }
+        .title { font-size: 18px; font-weight: 800; color: #FF6B6B; margin-bottom: 8px; }
+        .sub { font-size: 13px; color: #8B98A8; margin-bottom: 28px; line-height: 1.8; }
+        .info-box { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); border-radius: 10px; padding: 16px; margin-bottom: 24px; }
+        .info-row { display: flex; justify-content: space-between; padding: 6px 0; }
+        .info-label { font-size: 12px; color: #8B98A8; }
+        .info-value { font-size: 13px; font-weight: 600; }
+        .info-value.red { color: #FF6B6B; }
+        .info-value.orange { color: #F5A623; }
+        .btns { display: flex; gap: 12px; flex-direction: column; }
+        .btn { display: block; padding: 12px 24px; border-radius: 8px; border: none; font-family: Tahoma, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; }
+        .btn-primary { background: linear-gradient(135deg, #F5A623, #E8833A); color: #000; }
+        .btn-ghost { background: #1C2333; color: #8B98A8; border: 1px solid #2A3441; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">💸</div>
+        <div class="title">موجودی حساب کافی نیست</div>
+        <div class="sub">برای ثبت نوبت، موجودی کیف پول شما باید حداقل {{ "{:,}".format(queue_cost) }} ریال باشد</div>
+        <div class="info-box">
+            <div class="info-row">
+                <div class="info-label">هزینه ثبت نوبت</div>
+                <div class="info-value orange">{{ "{:,}".format(queue_cost) }} ریال</div>
+            </div>
+        </div>
+        <div class="btns">
+            <a href="/driver/{{ driver.id }}/wallet" class="btn btn-primary">💳 شارژ کیف پول</a>
+            <a href="/driver/{{ driver.id }}/queue" class="btn btn-ghost">بازگشت</a>
+        </div>
+    </div>
+</body>
+</html>
