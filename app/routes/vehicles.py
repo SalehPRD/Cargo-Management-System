@@ -1,27 +1,19 @@
-import json
-import os
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from app.routes.auth import require_admin
+from app.database import call_sp, call_sp_one
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-VEHICLES_FILE = "data/vehicles.json"
-USERS_FILE = "data/users.json"
+def generate_vehicle_id():
+    result = call_sp_one("sp_get_max_vehicle_id")
+    max_num = result["max_num"] if result and result["max_num"] else 0
+    return f"V{max_num + 1}"
 
-def load_json(path):
-    if not os.path.exists(path):
-        return []
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def save_vehicles(vehicles):
-    with open(VEHICLES_FILE, "w", encoding="utf-8") as f:
-        json.dump(vehicles, f, ensure_ascii=False, indent=2)
-
-def validate_vehicle(vehicles, smart_number, plate, loader_type, exclude_id=None):
+def validate_vehicle(smart_number, plate, loader_type, exclude_id=None):
+    vehicles = call_sp("sp_get_all_vehicles")
     for v in vehicles:
         if exclude_id and v["id"] == exclude_id:
             continue
@@ -35,8 +27,8 @@ def validate_vehicle(vehicles, smart_number, plate, loader_type, exclude_id=None
 async def vehicles_list(request: Request):
     if not require_admin(request):
         return RedirectResponse(url="/login")
-    vehicles = load_json(VEHICLES_FILE)
-    users = load_json(USERS_FILE)
+    vehicles = call_sp("sp_get_all_vehicles")
+    users = call_sp("sp_get_all_users")
     drivers = {u["id"]: u["full_name"] for u in users if u.get("role") == "driver"}
     return templates.TemplateResponse(request, "vehicles.html", {"vehicles": vehicles, "drivers": drivers})
 
@@ -44,7 +36,7 @@ async def vehicles_list(request: Request):
 async def vehicle_add_page(request: Request):
     if not require_admin(request):
         return RedirectResponse(url="/login")
-    users = load_json(USERS_FILE)
+    users = call_sp("sp_get_all_users")
     drivers = [u for u in users if u.get("role") == "driver" and u.get("status") == "approved"]
     return templates.TemplateResponse(request, "vehicle_form.html", {"vehicle": None, "drivers": drivers, "action": "/vehicles/add", "error": None})
 
@@ -59,34 +51,23 @@ async def vehicle_add_submit(
 ):
     if not require_admin(request):
         return RedirectResponse(url="/login")
-    vehicles = load_json(VEHICLES_FILE)
-    users = load_json(USERS_FILE)
+    users = call_sp("sp_get_all_users")
     drivers = [u for u in users if u.get("role") == "driver" and u.get("status") == "approved"]
-    error = validate_vehicle(vehicles, smart_number, plate, loader_type)
+    error = validate_vehicle(smart_number, plate, loader_type)
     if error:
         return templates.TemplateResponse(request, "vehicle_form.html", {"vehicle": None, "drivers": drivers, "action": "/vehicles/add", "error": error})
-    new_vehicle = {
-        "id": f"V{len(vehicles) + 1}",
-        "smart_number": smart_number,
-        "plate": plate,
-        "loader_type": loader_type,
-        "model": model,
-        "driver_id": driver_id,
-        "status": "free"
-    }
-    vehicles.append(new_vehicle)
-    save_vehicles(vehicles)
+    vehicle_id = generate_vehicle_id()
+    call_sp("sp_create_vehicle", (vehicle_id, smart_number, plate, loader_type, model, driver_id))
     return RedirectResponse(url="/vehicles", status_code=302)
 
 @router.get("/vehicles/edit/{vehicle_id}", response_class=HTMLResponse)
 async def vehicle_edit_page(request: Request, vehicle_id: str):
     if not require_admin(request):
         return RedirectResponse(url="/login")
-    vehicles = load_json(VEHICLES_FILE)
-    users = load_json(USERS_FILE)
-    vehicle = next((v for v in vehicles if v["id"] == vehicle_id), None)
+    vehicle = call_sp_one("sp_get_vehicle_by_id", (vehicle_id,))
     if not vehicle:
         return RedirectResponse(url="/vehicles")
+    users = call_sp("sp_get_all_users")
     drivers = [u for u in users if u.get("role") == "driver" and u.get("status") == "approved"]
     return templates.TemplateResponse(request, "vehicle_form.html", {"vehicle": vehicle, "drivers": drivers, "action": f"/vehicles/edit/{vehicle_id}", "error": None})
 
@@ -102,29 +83,18 @@ async def vehicle_edit_submit(
 ):
     if not require_admin(request):
         return RedirectResponse(url="/login")
-    vehicles = load_json(VEHICLES_FILE)
-    users = load_json(USERS_FILE)
+    users = call_sp("sp_get_all_users")
     drivers = [u for u in users if u.get("role") == "driver" and u.get("status") == "approved"]
-    error = validate_vehicle(vehicles, smart_number, plate, loader_type, exclude_id=vehicle_id)
+    error = validate_vehicle(smart_number, plate, loader_type, exclude_id=vehicle_id)
     if error:
-        vehicle = next((v for v in vehicles if v["id"] == vehicle_id), None)
+        vehicle = call_sp_one("sp_get_vehicle_by_id", (vehicle_id,))
         return templates.TemplateResponse(request, "vehicle_form.html", {"vehicle": vehicle, "drivers": drivers, "action": f"/vehicles/edit/{vehicle_id}", "error": error})
-    for v in vehicles:
-        if v["id"] == vehicle_id:
-            v["smart_number"] = smart_number
-            v["plate"] = plate
-            v["loader_type"] = loader_type
-            v["model"] = model
-            v["driver_id"] = driver_id
-            break
-    save_vehicles(vehicles)
+    call_sp("sp_update_vehicle", (vehicle_id, smart_number, plate, loader_type, model, driver_id))
     return RedirectResponse(url="/vehicles", status_code=302)
 
 @router.get("/vehicles/delete/{vehicle_id}", response_class=HTMLResponse)
 async def vehicle_delete(request: Request, vehicle_id: str):
     if not require_admin(request):
         return RedirectResponse(url="/login")
-    vehicles = load_json(VEHICLES_FILE)
-    vehicles = [v for v in vehicles if v["id"] != vehicle_id]
-    save_vehicles(vehicles)
+    call_sp("sp_delete_vehicle", (vehicle_id,))
     return RedirectResponse(url="/vehicles", status_code=302)

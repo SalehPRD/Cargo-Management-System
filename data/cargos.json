@@ -1,3 +1,20 @@
 [
-  
+  {
+    "id": "C1",
+    "origin": "قاین",
+    "destination": "مشهد",
+    "weight": "۲۳",
+    "product_name": "خاک",
+    "loader_type": "کفی",
+    "status": "waiting"
+  },
+  {
+    "id": "C2",
+    "origin": "X",
+    "destination": "Z",
+    "weight": "X",
+    "product_name": "X",
+    "loader_type": "کمپرس",
+    "status": "waiting"
+  }
 ]

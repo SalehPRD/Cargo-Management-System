@@ -1,26 +1,15 @@
-import json
-import os
+import pymysql
 from fastapi import APIRouter, Request, Form, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from itsdangerous import URLSafeTimedSerializer, BadSignature
+from app.database import call_sp, call_sp_one
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-USERS_FILE = "data/users.json"
 SECRET_KEY = "cargo-system-secret-key-2024"
 serializer = URLSafeTimedSerializer(SECRET_KEY)
-
-def load_users():
-    if not os.path.exists(USERS_FILE):
-        return []
-    with open(USERS_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def save_users(users):
-    with open(USERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(users, f, ensure_ascii=False, indent=2)
 
 def create_session(user_id: str, role: str):
     return serializer.dumps({"id": user_id, "role": role})
@@ -43,19 +32,10 @@ def require_admin(request: Request):
         return None
     return session
 
-def require_driver(request: Request, driver_id: str):
-    session = get_session(request)
-    if not session:
-        return None
-    if session["role"] != "driver" or session["id"] != driver_id:
-        return None
-    return session
-
 @router.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    users = load_users()
-    admins = [u for u in users if u["role"] == "admin_main"]
-    if not admins:
+    admin = call_sp_one("sp_get_admin_main")
+    if not admin:
         return RedirectResponse(url="/setup")
     session = get_session(request)
     if session:
@@ -66,28 +46,17 @@ async def root(request: Request):
 
 @router.get("/setup", response_class=HTMLResponse)
 async def setup_page(request: Request):
-    users = load_users()
-    admins = [u for u in users if u["role"] == "admin_main"]
-    if admins:
+    admin = call_sp_one("sp_get_admin_main")
+    if admin:
         return RedirectResponse(url="/login")
     return templates.TemplateResponse(request, "setup.html")
 
 @router.post("/setup", response_class=HTMLResponse)
 async def setup_submit(request: Request, username: str = Form(...), password: str = Form(...), full_name: str = Form(...), phone: str = Form(...)):
-    users = load_users()
-    admins = [u for u in users if u["role"] == "admin_main"]
-    if admins:
+    admin = call_sp_one("sp_get_admin_main")
+    if admin:
         return RedirectResponse(url="/login")
-    new_admin = {
-        "id": "A1",
-        "username": username,
-        "password": password,
-        "full_name": full_name,
-        "phone": phone,
-        "role": "admin_main"
-    }
-    users.append(new_admin)
-    save_users(users)
+    call_sp("sp_create_user", ("A1", full_name, None, phone, username, password, "admin_main", "approved"))
     return RedirectResponse(url="/login", status_code=302)
 
 @router.get("/login", response_class=HTMLResponse)
@@ -101,9 +70,8 @@ async def login_page(request: Request):
 
 @router.post("/login", response_class=HTMLResponse)
 async def login_submit(request: Request, response: Response, username: str = Form(...), password: str = Form(...)):
-    users = load_users()
-    user = next((u for u in users if u["username"] == username and u["password"] == password), None)
-    if not user:
+    user = call_sp_one("sp_get_user_by_username", (username,))
+    if not user or user["password"] != password:
         return templates.TemplateResponse(request, "login.html", {"error": "نام کاربری یا رمز عبور اشتباه است"})
     if user["role"] == "driver":
         if user.get("status") != "approved":
